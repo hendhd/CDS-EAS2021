@@ -19,40 +19,31 @@ import sys
 from astropy import units as u
 from astroquery.simbad import Simbad
 from astropy.coordinates import SkyCoord
+from astropy.coordinates.name_resolve import get_icrs_coordinates as Sesame
+
 
 # Keep the output of this example "sane".
 if not sys.warnoptions:
   warnings.simplefilter("ignore")
-
-def resolve_name(name):
-
-  # Query SIMBAD and resolve name to positions. 
-  table = Simbad.query_region(name, radius=0.1 * u.deg)
-
-  # Make an astropy SkyCoordinate object from position given by 
-  # the first row in the table.
-  pos = SkyCoord (table[0]["RA"], table[0]["DEC"], frame='icrs', unit=(u.hourangle, u.degree))
-
-  return pos
 
 def query_vizier(pos):
 
   # Set the service url
   access_url = "http://vizier.u-strasbg.fr/viz-bin/conesearch/I/350/gaiaedr3?"
 
-  # Query the Gaia DR2 catalogue on Vizier
-  result = pyvo.conesearch(access_url, pos, radius=5.0)
+  # Query the Gaia DR3 catalogue on Vizier
+  result = pyvo.conesearch(access_url, pos, radius=1.0)
 
   return result
 
 def main():
 
   # Resolve the name to position
-  position=resolve_name("pleiades")
-
+  position=Sesame("pleiades")
+  
   # Query Vizier
   table=query_vizier(position)
-
+  
   # Send the table to topcat
   table.broadcast_samp("topcat")
 
