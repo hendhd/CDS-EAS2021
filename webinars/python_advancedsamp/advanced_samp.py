@@ -8,9 +8,8 @@
 # Eventually we send everything to topcat via SAMP to do further
 # analysis of the data. 
 #
-# Make sure you have topcat installed and open before starting the
+# Make sure you have topcat and Aladin installed and open before starting the
 # script. 
-
 
 import pyvo
 import warnings 
@@ -25,13 +24,9 @@ from astropy.samp import SAMPIntegratedClient
 from astropy.table import Table
 
 
-
-# Keep the output of this example "sane".
-if not sys.warnoptions:
-  warnings.simplefilter("ignore")
-
-
 class SAMP_Receiver(object):
+
+  # We need a Receiver so we can deal with incoming messages from SAMP
 
   def __init__(self, client):
     self.client = client
@@ -50,7 +45,8 @@ class SAMP_Receiver(object):
 def listen_SAMP ():
 
   # Make the client Object and connect to SAMP.
-  client = SAMPIntegratedClient()
+  # Give a reasonable name so we can identify it in topcat
+  client = SAMPIntegratedClient(name="Python:Advancedsamp")
   client.connect()
 
   r = SAMP_Receiver(client)
@@ -59,7 +55,7 @@ def listen_SAMP ():
 
   try:
 
-    # We test every 0.1s to see if the hub has sent a message
+    # Test every 0.1s to see if the hub has sent a message
     while True:
       time.sleep(0.1)
       if r.received:
@@ -107,17 +103,17 @@ def main():
   
   # Resolve the name to position
   position=Sesame("pleiades")
-  print ("Name resolved. Starting Cone Search.")
+#  print ("Name resolved. Starting Cone Search.")
 
   # Query ARI Cone Search on Gaia
   table=query_gaiacone(position)
-  print ("Received Data from ARI Service. Sending to topcat")
+#  print ("Received Data from ARI Service. Sending to topcat")
 
   # Send the table to topcat
   table.broadcast_samp("topcat")
-  print ("Awating Action in TOPCAT")
+#  print ("Awating Action in TOPCAT")
   
-    # Wait for an answer from topcat
+  # Wait for an answer from topcat
   peculiar_objects = listen_SAMP()
   print ("Good objects, query Simbad")
   
